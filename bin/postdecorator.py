@@ -34,7 +34,9 @@ import signal
 import sys
 import os
 import time
-#from dwd_extensions.trollduction.postprocessor import PostProcessor
+sys.path.insert(0, '/opt/users/koe/PyTroll/packages/postdecorate/postdecorate')
+
+from postdecorator import PostDecorator
 
 if __name__ == '__main__':
 
@@ -65,12 +67,12 @@ if __name__ == '__main__':
     config.read(args.config_file)
 
     try:
-        log_config = config.get(args.config_item, "td_postproc_log_config")
+        log_config = config.get(args.config_item, "decorate_log_config")
         if 'template' in log_config:
             print "Template file given as Trollduction logging config," \
                 " aborting!"
             sys.exit()
-
+ 
     except NoOptionError:
         logging.basicConfig()
     else:
@@ -92,24 +94,25 @@ if __name__ == '__main__':
         time.tzset()
 
     if "template" in cfg["product_config_file"]:
-        print "Template file given as trollstalker product config, " \
+        print "Template file given as postecorate product config, " \
             "aborting!"
 
-    pp = PostProcessor(cfg)
-
+    decorator = PostDecorator(cfg)
+    
     def shutdown(*args):
         print "starting shutdown procedure"
         del args
-        pp.shutdown()
+        decorator.shutdown()
         logging.shutdown()
         print "shutdown procedure finished"
         os._exit(0)
 
     signal.signal(signal.SIGTERM, shutdown)
 
-    # Run PostProcessor
+    # Run PostDecorator
     try:
-        pp.run_single()
+        print("starting postdecorate...")
+        decorator.run_single()
     except KeyboardInterrupt:
         shutdown()
 
